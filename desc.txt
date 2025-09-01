@@ -1,0 +1,50 @@
+Using the TCP/IP protocol, develop a desktop application that can send and receive messages with the message contents provided in the table below. Develop the application using C# Windows Forms.
+
+The details of the expected user interface are as follows:
+
+The application must be able to operate either as a server or a client, based on the user's preference.
+
+The user interface should allow the user to enter the content of each field in the defined messages and send them to the connected party.
+
+The application must log all incoming and outgoing messages in a list on the user interface, along with the timestamp and message name.
+(Note: If the message is sent, it should be prefixed with “Transmit”; if it is received, it should be prefixed with “Receive”.)
+
+The user interface should allow the user to select any message from the message list and display its contents.
+
+If the application receives a defined message from the other side, it should respond as follows:
+If Message 1 is received, it should send Message 2.
+If Message 2 is received, it should send Message 1.
+
+If the application receives an undefined message, it should notify the user that the message is not recognized.
+
+The application should also have the ability to send defined messages at specified intervals when desired.
+This feature should be activated based on the user’s selection.
+For example, the user should be able to choose to send Message 1 every 100 ms and Message 2 every 500 ms.
+
+During the presentation, the application will be run with one instance as the Server and another as the Client.
+These two instances will connect to each other and send/receive defined messages to test that the application works correctly.
+
+Defined Message List
+
+First Message:
+
+Parameter Name	Type	Allowed Values
+Message ID	int (4 bytes)	1
+Unit Reference Number	int (4 bytes)	Between -1000 and 9999
+First Name	string	25-character string
+Unit No	uint32	4 bytes
+Last Name	string	25-character string
+Rank	short (2 bytes)	0: First Lieutenant (Üsteğmen)
+1: Second Lieutenant (Teğmen)
+2: Third Lieutenant (Asteğmen)
+
+Second Message:
+
+Parameter Name	Type	Allowed Values
+Message ID	int (4 bytes)	2
+Unit Reference Number	int (4 bytes)	Between 1 and 9999
+Unit Location Validity	byte (1 byte)	1: True
+0: False
+Latitude	long (8 bytes)	Between -32,400,000 and 32,400,000
+Longitude	long (8 bytes)	Between -64,800,000 and 64,800,000
+Altitude	int (4 bytes)	Between 0 and 10,000
