@@ -58,12 +58,8 @@ namespace WinFormsApp1
         {
             // Convert received data from bytes to string
             string messageText = Encoding.UTF8.GetString(data);
-
-            // Because this is coming from a background thread, you must update UI on main thread
-            this.Invoke(new Action(() =>
-            {
-                MessageBox.Show("Received: " + messageText); // Or log it to a ListBox
-            }));
+            // client side show received message
+            this.Invoke(() => listBoxLog.Items.Add("[Received]: " + messageText));
         }
 
         private void comboMessageType_SelectedIndexChanged(object sender, EventArgs e)
@@ -93,31 +89,98 @@ namespace WinFormsApp1
         {
             if (comboMessageType.SelectedItem.ToString() == "Message 1")
             {
+                // Validate Unit Reference Number
+                if (!int.TryParse(textBoxMsg1RefNo.Text, out int unitRef1) || unitRef1 < -1000 || unitRef1 > 9999)
+                {
+                    MessageBox.Show("Unit Reference Number must be between -1000 and 9999.", "Validation Error");
+                    return;
+                }
+
+                // Validate First Name
+                if (string.IsNullOrWhiteSpace(textBoxFirstName.Text) || textBoxFirstName.Text.Length > 25)
+                {
+                    MessageBox.Show("First Name must be a non-empty string with max 25 characters.", "Validation Error");
+                    return;
+                }
+
+                // Validate Unit No
+                if (!uint.TryParse(textBoxUnitNo.Text, out uint unitNo))
+                {
+                    MessageBox.Show("Unit No must be a valid unsigned integer.", "Validation Error");
+                    return;
+                }
+
+                // Validate Last Name
+                if (string.IsNullOrWhiteSpace(textBoxLastName.Text) || textBoxLastName.Text.Length > 25)
+                {
+                    MessageBox.Show("Last Name must be a non-empty string with max 25 characters.", "Validation Error");
+                    return;
+                }
+
+                // Validate Rank
+                if (comboBoxRank.SelectedIndex < 0 || comboBoxRank.SelectedIndex > 2)
+                {
+                    MessageBox.Show("Please select a valid Rank (0 to 2).", "Validation Error");
+                    return;
+                }
+
+                // Construct and send Message1
                 var msg1 = new Message1
                 {
-                    UnitRefNumber = int.Parse(textBoxMsg1RefNo.Text),
+                    UnitRefNumber = unitRef1,
                     FirstName = textBoxFirstName.Text,
-                    UnitNo = uint.Parse(textBoxUnitNo.Text),
+                    UnitNo = unitNo,
                     LastName = textBoxLastName.Text,
                     Rank = (Rank)comboBoxRank.SelectedIndex
                 };
 
                 byte[] data = MessageHelper.Serialize(msg1);
                 await messenger.SendMessage(data);
+                LogSentMessage(data);
             }
-            else
+            else if(comboMessageType.SelectedItem.ToString() == "Message 2")
             {
+                // Validate Unit Reference Number
+                if (!int.TryParse(textBoxMsg2RefNo.Text, out int unitRef2) || unitRef2 < 1 || unitRef2 > 9999)
+                {
+                    MessageBox.Show("Unit Reference Number must be between 1 and 9999.", "Validation Error");
+                    return;
+                }
+
+                // Validate Latitude
+                if (!long.TryParse(textBoxLatitude.Text, out long latitude) || latitude < -32400000 || latitude > 32400000)
+                {
+                    MessageBox.Show("Latitude must be between -32,400,000 and 32,400,000.", "Validation Error");
+                    return;
+                }
+
+                // Validate Longitude
+                if (!long.TryParse(textBoxLongitude.Text, out long longitude) || longitude < -64800000 || longitude > 64800000)
+                {
+                    MessageBox.Show("Longitude must be between -64,800,000 and 64,800,000.", "Validation Error");
+                    return;
+                }
+
+                // Validate Altitude
+                if (!int.TryParse(textBoxAltitude.Text, out int altitude) || altitude < 0 || altitude > 10000)
+                {
+                    MessageBox.Show("Altitude must be between 0 and 10,000.", "Validation Error");
+                    return;
+                }
+
+                // Construct and send Message2
                 var msg2 = new Message2
                 {
-                    UnitRefNumber = int.Parse(textBoxMsg2RefNo.Text),
+                    UnitRefNumber = unitRef2,
                     LocationValidity = checkBoxLocValid.Checked ? (byte)1 : (byte)0,
-                    Latitude = long.Parse(textBoxLatitude.Text),
-                    Longitude = long.Parse(textBoxLongitude.Text),
-                    Altitude = int.Parse(textBoxAltitude.Text)
+                    Latitude = latitude,
+                    Longitude = longitude,
+                    Altitude = altitude
                 };
 
                 byte[] data = MessageHelper.Serialize(msg2);
                 await messenger.SendMessage(data);
+                LogSentMessage(data);
             }
         }
 
@@ -133,14 +196,22 @@ namespace WinFormsApp1
             {
                 server = new TcpServer();
                 server.OnMessageReceived += Server_OnMessageReceived;
-                server.OnLog += msg => listBoxLog.Items.Add(msg);
+                server.OnLog += msg => this.Invoke(() => listBoxServer.Items.Add(msg));
 
-                string ip = "127.0.0.1"; // Or get from a textbox
+                string ip = label4.Text; // 127.0.0.1
                 int port = int.Parse(textBox3.Text);
 
-                await server.StartAsync(ip, port);
-                isServerRunning = true;
-                buttonStartServer.Enabled = false;  // Optionally disable start button
+                try
+                {
+                    await server.StartAsync(ip, port);
+                    isServerRunning = true;
+                    buttonStartServer.Enabled = false;
+                }
+                catch (Exception ex)
+                {
+                    listBoxLog.Items.Add("❌ Exception in StartAsync: " + ex.Message);
+                    MessageBox.Show("Server start failed: " + ex.Message);
+                }
             }
             catch (Exception ex)
             {
@@ -150,8 +221,16 @@ namespace WinFormsApp1
 
         private void Server_OnMessageReceived(byte[] data)
         {
+            // server side show received message
             string json = Encoding.UTF8.GetString(data);
-            this.Invoke(() => listBoxLog.Items.Add("Received: " + json));
+            this.Invoke(() => listBoxServer.Items.Add("[Received]: " + json));
+        }
+
+        private void LogSentMessage(byte[] data)
+        {
+            // client side show sent message
+            string json = Encoding.UTF8.GetString(data);
+            this.Invoke(() => listBoxLog.Items.Add("[Transmitted]: " + json));
         }
 
         private void buttonStopServer_Click(object sender, EventArgs e)
@@ -165,6 +244,31 @@ namespace WinFormsApp1
             server?.Stop();
             isServerRunning = false;
             buttonStartServer.Enabled = true;
+        }
+
+        private async void buttonConnect_Click(object sender, EventArgs e)
+        {
+            string ip = textBox1.Text.Trim();     // IP address (e.g., "127.0.0.1")
+            if (!int.TryParse(textBox2.Text.Trim(), out int port))
+            {
+                MessageBox.Show("Invalid port number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                messenger = new TcpMessenger();
+                messenger.OnMessageReceived += OnMessageReceived;
+
+                await messenger.ConnectAsync(ip, port);
+                listBoxLog.Items.Add($"Connected to server at {ip}:{port}");
+                buttonConnect.Enabled = false; // Optional: disable after successful connection
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Connection failed: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                listBoxLog.Items.Add($"Connection failed: {ex.Message}");
+            }
         }
     }
 

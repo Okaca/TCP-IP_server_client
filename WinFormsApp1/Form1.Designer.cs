@@ -63,12 +63,13 @@
             textBox1 = new TextBox();
             label1 = new Label();
             serverPage = new TabPage();
+            buttonStopServer = new Button();
             label4 = new Label();
             buttonStartServer = new Button();
             textBox3 = new TextBox();
             label3 = new Label();
             serverIPaddress = new Label();
-            buttonStopServer = new Button();
+            listBoxServer = new ListBox();
             tabControl1.SuspendLayout();
             client.SuspendLayout();
             panelMessage1.SuspendLayout();
@@ -347,6 +348,7 @@
             // listBoxLog
             // 
             listBoxLog.FormattingEnabled = true;
+            listBoxLog.HorizontalScrollbar = true;
             listBoxLog.ItemHeight = 15;
             listBoxLog.Location = new Point(39, 393);
             listBoxLog.Name = "listBoxLog";
@@ -361,6 +363,7 @@
             buttonConnect.TabIndex = 4;
             buttonConnect.Text = "Connect";
             buttonConnect.UseVisualStyleBackColor = true;
+            buttonConnect.Click += buttonConnect_Click;
             // 
             // textBox2
             // 
@@ -396,9 +399,10 @@
             label1.TabIndex = 0;
             label1.Text = "Ip Address";
             // 
-            // server
+            // serverPage
             // 
             serverPage.BackColor = Color.Transparent;
+            serverPage.Controls.Add(listBoxServer);
             serverPage.Controls.Add(buttonStopServer);
             serverPage.Controls.Add(label4);
             serverPage.Controls.Add(buttonStartServer);
@@ -406,11 +410,21 @@
             serverPage.Controls.Add(label3);
             serverPage.Controls.Add(serverIPaddress);
             serverPage.Location = new Point(4, 24);
-            serverPage.Name = "server";
+            serverPage.Name = "serverPage";
             serverPage.Padding = new Padding(3);
             serverPage.Size = new Size(760, 478);
             serverPage.TabIndex = 1;
             serverPage.Text = "Server";
+            // 
+            // buttonStopServer
+            // 
+            buttonStopServer.Location = new Point(119, 166);
+            buttonStopServer.Name = "buttonStopServer";
+            buttonStopServer.Size = new Size(75, 23);
+            buttonStopServer.TabIndex = 11;
+            buttonStopServer.Text = "Stop Server";
+            buttonStopServer.UseVisualStyleBackColor = true;
+            buttonStopServer.Click += buttonStopServer_Click;
             // 
             // label4
             // 
@@ -457,15 +471,14 @@
             serverIPaddress.TabIndex = 5;
             serverIPaddress.Text = "Ip Address";
             // 
-            // buttonStopServer
+            // listBoxServer
             // 
-            buttonStopServer.Location = new Point(119, 166);
-            buttonStopServer.Name = "buttonStopServer";
-            buttonStopServer.Size = new Size(75, 23);
-            buttonStopServer.TabIndex = 11;
-            buttonStopServer.Text = "Stop Server";
-            buttonStopServer.UseVisualStyleBackColor = true;
-            buttonStopServer.Click += buttonStopServer_Click;
+            listBoxServer.FormattingEnabled = true;
+            listBoxServer.ItemHeight = 15;
+            listBoxServer.Location = new Point(26, 218);
+            listBoxServer.Name = "listBoxServer";
+            listBoxServer.Size = new Size(704, 244);
+            listBoxServer.TabIndex = 12;
             // 
             // Form1
             // 
@@ -535,5 +548,6 @@
         private CheckBox checkBoxLocValid;
         private TextBox textBoxAltitude;
         private Button buttonStopServer;
+        private ListBox listBoxServer;
     }
 }

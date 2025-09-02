@@ -21,11 +21,23 @@ namespace WinFormsApp1
 
             Log($"Server started on {ip}:{port}");
 
-            while (_isRunning)
+            _ = Task.Run(async () =>
             {
-                var client = await _listener.AcceptTcpClientAsync();
-                _ = HandleClientAsync(client);
-            }
+                while (true)
+                {
+                    try
+                    {
+                        var client = await _listener.AcceptTcpClientAsync();
+                        // await HandleClientAsync(client); // only good for single-client server
+                        _ = Task.Run(() => HandleClientAsync(client));  // Run in parallel, do not await
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Listener stopped: {ex.Message}");
+                        break;
+                    }
+                }
+            });
         }
 
         public void Stop()
@@ -57,7 +69,7 @@ namespace WinFormsApp1
 
                         if (text.Contains("\"FirstName\"")) // Rough indicator of Message1
                         {
-                            var msg2 = new Message2
+                            var msg2 = new Message2 // random values for msg2
                             {
                                 UnitRefNumber = 1234,
                                 LocationValidity = 1,
@@ -67,11 +79,12 @@ namespace WinFormsApp1
                             };
                             var response = MessageHelper.Serialize(msg2);
                             await stream.WriteAsync(response, 0, response.Length);
-                            Log("Received Message1, sent Message2.");
+                            // show sent message
+                            Log("[Transmitted]: " + Encoding.UTF8.GetString(response));
                         }
                         else if (text.Contains("\"Latitude\"")) // Rough indicator of Message2
                         {
-                            var msg1 = new Message1
+                            var msg1 = new Message1 // random values for msg1
                             {
                                 UnitRefNumber = 4321,
                                 FirstName = "Server",
@@ -81,7 +94,8 @@ namespace WinFormsApp1
                             };
                             var response = MessageHelper.Serialize(msg1);
                             await stream.WriteAsync(response, 0, response.Length);
-                            Log("Received Message2, sent Message1.");
+                            // show sent message
+                            Log("[Transmitted]: " + Encoding.UTF8.GetString(response));
                         }
                         else
                         {
