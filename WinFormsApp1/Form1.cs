@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using System.Windows.Forms;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -182,7 +182,8 @@ namespace WinFormsApp1
             // Convert received data from bytes to string
             string messageText = Encoding.UTF8.GetString(data);
             // client side show received message
-            this.Invoke(() => listBoxLog.Items.Add("[Received]: " + messageText));
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            this.Invoke(() => listBoxLog.Items.Add($"[{timestamp}] [Received]: " + messageText));
         }
 
         private void comboMessageType_SelectedIndexChanged(object sender, EventArgs e)
@@ -341,14 +342,16 @@ namespace WinFormsApp1
         {
             // server side show received message
             string json = Encoding.UTF8.GetString(data);
-            this.Invoke(() => listBoxServer.Items.Add("[Received]: " + json));
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            this.Invoke(() => listBoxServer.Items.Add($"[{timestamp}] [Received]: " + json));
         }
 
         private void LogSentMessage(byte[] data)
         {
             // client side show sent message
             string json = Encoding.UTF8.GetString(data);
-            this.Invoke(() => listBoxLog.Items.Add("[Transmitted]: " + json));
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            this.Invoke(() => listBoxLog.Items.Add($"[{timestamp}] [Transmitted]: " + json));
         }
 
         private void buttonStopServer_Click(object sender, EventArgs e)
