@@ -30,6 +30,8 @@
         {
             tabControl1 = new TabControl();
             client = new TabPage();
+            numericUpDownInterval = new NumericUpDown();
+            checkBoxAutoSend = new CheckBox();
             buttonSendMessage = new Button();
             panelMessage1 = new Panel();
             comboBoxRank = new ComboBox();
@@ -63,15 +65,16 @@
             textBox1 = new TextBox();
             label1 = new Label();
             serverPage = new TabPage();
+            listBoxServer = new ListBox();
             buttonStopServer = new Button();
             label4 = new Label();
             buttonStartServer = new Button();
             textBox3 = new TextBox();
             label3 = new Label();
             serverIPaddress = new Label();
-            listBoxServer = new ListBox();
             tabControl1.SuspendLayout();
             client.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownInterval).BeginInit();
             panelMessage1.SuspendLayout();
             panelMessage2.SuspendLayout();
             serverPage.SuspendLayout();
@@ -84,12 +87,14 @@
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(768, 506);
+            tabControl1.Size = new Size(768, 545);
             tabControl1.TabIndex = 0;
             // 
             // client
             // 
             client.BackColor = Color.Transparent;
+            client.Controls.Add(numericUpDownInterval);
+            client.Controls.Add(checkBoxAutoSend);
             client.Controls.Add(buttonSendMessage);
             client.Controls.Add(panelMessage1);
             client.Controls.Add(panelMessage2);
@@ -103,9 +108,33 @@
             client.Location = new Point(4, 24);
             client.Name = "client";
             client.Padding = new Padding(3);
-            client.Size = new Size(760, 478);
+            client.Size = new Size(760, 517);
             client.TabIndex = 0;
             client.Text = "Client";
+            // 
+            // numericUpDownInterval
+            // 
+            numericUpDownInterval.Increment = new decimal(new int[] { 10, 0, 0, 0 });
+            numericUpDownInterval.Location = new Point(425, 345);
+            numericUpDownInterval.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numericUpDownInterval.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
+            numericUpDownInterval.Name = "numericUpDownInterval";
+            numericUpDownInterval.Size = new Size(120, 23);
+            numericUpDownInterval.TabIndex = 11;
+            numericUpDownInterval.Value = new decimal(new int[] { 500, 0, 0, 0 });
+            numericUpDownInterval.ValueChanged += numericUpDownInterval_ValueChanged;
+            // 
+            // checkBoxAutoSend
+            // 
+            checkBoxAutoSend.AutoSize = true;
+            checkBoxAutoSend.Location = new Point(274, 346);
+            checkBoxAutoSend.Name = "checkBoxAutoSend";
+            checkBoxAutoSend.Size = new Size(126, 19);
+            checkBoxAutoSend.TabIndex = 10;
+            checkBoxAutoSend.Text = "Autosend Message";
+            checkBoxAutoSend.TextAlign = ContentAlignment.MiddleCenter;
+            checkBoxAutoSend.UseVisualStyleBackColor = true;
+            checkBoxAutoSend.CheckedChanged += checkBoxAutoSend_CheckedChanged;
             // 
             // buttonSendMessage
             // 
@@ -274,7 +303,6 @@
             textBoxLongitude.Name = "textBoxLongitude";
             textBoxLongitude.Size = new Size(100, 23);
             textBoxLongitude.TabIndex = 19;
-            textBoxLongitude.TextChanged += textBox4_TextChanged;
             // 
             // labelLongitude
             // 
@@ -352,7 +380,7 @@
             listBoxLog.ItemHeight = 15;
             listBoxLog.Location = new Point(39, 393);
             listBoxLog.Name = "listBoxLog";
-            listBoxLog.Size = new Size(679, 79);
+            listBoxLog.Size = new Size(679, 109);
             listBoxLog.TabIndex = 5;
             // 
             // buttonConnect
@@ -412,9 +440,18 @@
             serverPage.Location = new Point(4, 24);
             serverPage.Name = "serverPage";
             serverPage.Padding = new Padding(3);
-            serverPage.Size = new Size(760, 478);
+            serverPage.Size = new Size(760, 517);
             serverPage.TabIndex = 1;
             serverPage.Text = "Server";
+            // 
+            // listBoxServer
+            // 
+            listBoxServer.FormattingEnabled = true;
+            listBoxServer.ItemHeight = 15;
+            listBoxServer.Location = new Point(26, 218);
+            listBoxServer.Name = "listBoxServer";
+            listBoxServer.Size = new Size(704, 289);
+            listBoxServer.TabIndex = 12;
             // 
             // buttonStopServer
             // 
@@ -471,15 +508,6 @@
             serverIPaddress.TabIndex = 5;
             serverIPaddress.Text = "Ip Address";
             // 
-            // listBoxServer
-            // 
-            listBoxServer.FormattingEnabled = true;
-            listBoxServer.ItemHeight = 15;
-            listBoxServer.Location = new Point(26, 218);
-            listBoxServer.Name = "listBoxServer";
-            listBoxServer.Size = new Size(704, 244);
-            listBoxServer.TabIndex = 12;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -496,6 +524,7 @@
             tabControl1.ResumeLayout(false);
             client.ResumeLayout(false);
             client.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownInterval).EndInit();
             panelMessage1.ResumeLayout(false);
             panelMessage1.PerformLayout();
             panelMessage2.ResumeLayout(false);
@@ -549,5 +578,7 @@
         private TextBox textBoxAltitude;
         private Button buttonStopServer;
         private ListBox listBoxServer;
+        private NumericUpDown numericUpDownInterval;
+        private CheckBox checkBoxAutoSend;
     }
 }

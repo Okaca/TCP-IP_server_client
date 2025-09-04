@@ -11,15 +11,11 @@ namespace WinFormsApp1
         private TcpMessenger messenger;
         private TcpServer server;
         private bool isServerRunning = false;
+        private System.Windows.Forms.Timer autoSendTimer;
 
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void buttonSendMsg1_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -36,7 +32,134 @@ namespace WinFormsApp1
             // Set default selection to "Message 1"
             comboMessageType.SelectedIndex = 0;
 
+            autoSendTimer = new System.Windows.Forms.Timer();
+            autoSendTimer.Tick += AutoSendTimer_Tick;
+
             comboBoxRank.Items.AddRange(new string[] { "Üsteğmen", "Teğmen", "Asteğmen" });
+        }
+
+        private async void AutoSendTimer_Tick(object sender, EventArgs e)
+        {
+            // Trigger the same logic as the manual send button
+            await SendSelectedMessageAsync();
+        }
+
+        private async Task SendSelectedMessageAsync()
+        {
+            if (comboMessageType.SelectedItem.ToString() == "Message 1")
+            {
+                // Validate Unit Reference Number
+                if (!int.TryParse(textBoxMsg1RefNo.Text, out int unitRef1) || unitRef1 < -1000 || unitRef1 > 9999)
+                {
+                    MessageBox.Show("Unit Reference Number must be between -1000 and 9999.", "Validation Error");
+                    return;
+                }
+
+                // Validate First Name
+                if (string.IsNullOrWhiteSpace(textBoxFirstName.Text) || textBoxFirstName.Text.Length > 25)
+                {
+                    MessageBox.Show("First Name must be a non-empty string with max 25 characters.", "Validation Error");
+                    return;
+                }
+
+                // Validate Unit No
+                if (!uint.TryParse(textBoxUnitNo.Text, out uint unitNo))
+                {
+                    MessageBox.Show("Unit No must be a valid unsigned integer.", "Validation Error");
+                    return;
+                }
+
+                // Validate Last Name
+                if (string.IsNullOrWhiteSpace(textBoxLastName.Text) || textBoxLastName.Text.Length > 25)
+                {
+                    MessageBox.Show("Last Name must be a non-empty string with max 25 characters.", "Validation Error");
+                    return;
+                }
+
+                // Validate Rank
+                if (comboBoxRank.SelectedIndex < 0 || comboBoxRank.SelectedIndex > 2)
+                {
+                    MessageBox.Show("Please select a valid Rank (0 to 2).", "Validation Error");
+                    return;
+                }
+
+                // Construct and send Message1
+                var msg1 = new Message1
+                {
+                    UnitRefNumber = unitRef1,
+                    FirstName = textBoxFirstName.Text,
+                    UnitNo = unitNo,
+                    LastName = textBoxLastName.Text,
+                    Rank = (Rank)comboBoxRank.SelectedIndex
+                };
+
+                byte[] data = MessageHelper.Serialize(msg1);
+                await messenger.SendMessage(data);
+                LogSentMessage(data);
+            }
+            else if (comboMessageType.SelectedItem.ToString() == "Message 2")
+            {
+                // Validate Unit Reference Number
+                if (!int.TryParse(textBoxMsg2RefNo.Text, out int unitRef2) || unitRef2 < 1 || unitRef2 > 9999)
+                {
+                    MessageBox.Show("Unit Reference Number must be between 1 and 9999.", "Validation Error");
+                    return;
+                }
+
+                // Validate Latitude
+                if (!long.TryParse(textBoxLatitude.Text, out long latitude) || latitude < -32400000 || latitude > 32400000)
+                {
+                    MessageBox.Show("Latitude must be between -32,400,000 and 32,400,000.", "Validation Error");
+                    return;
+                }
+
+                // Validate Longitude
+                if (!long.TryParse(textBoxLongitude.Text, out long longitude) || longitude < -64800000 || longitude > 64800000)
+                {
+                    MessageBox.Show("Longitude must be between -64,800,000 and 64,800,000.", "Validation Error");
+                    return;
+                }
+
+                // Validate Altitude
+                if (!int.TryParse(textBoxAltitude.Text, out int altitude) || altitude < 0 || altitude > 10000)
+                {
+                    MessageBox.Show("Altitude must be between 0 and 10,000.", "Validation Error");
+                    return;
+                }
+
+                // Construct and send Message2
+                var msg2 = new Message2
+                {
+                    UnitRefNumber = unitRef2,
+                    LocationValidity = checkBoxLocValid.Checked ? (byte)1 : (byte)0,
+                    Latitude = latitude,
+                    Longitude = longitude,
+                    Altitude = altitude
+                };
+
+                byte[] data = MessageHelper.Serialize(msg2);
+                await messenger.SendMessage(data);
+                LogSentMessage(data);
+            }
+        }
+
+        private void checkBoxAutoSend_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxAutoSend.Checked)
+            {
+                autoSendTimer.Interval = (int)numericUpDownInterval.Value; // Set based on user input
+                autoSendTimer.Start();
+            }
+            else
+            {
+                autoSendTimer.Stop();
+            }
+        }
+
+        // interval to update live when user changes it
+        private void numericUpDownInterval_ValueChanged(object sender, EventArgs e)
+        {
+            autoSendTimer.Interval = (int)numericUpDownInterval.Value;
         }
 
         public static class MessageHelper
@@ -78,11 +201,6 @@ namespace WinFormsApp1
                 panelMessage2.Visible = true;
                 panelMessage2.BringToFront();
             }
-        }
-
-        private void textBox4_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private async void buttonSendMessage_Click(object sender, EventArgs e)
@@ -138,7 +256,7 @@ namespace WinFormsApp1
                 await messenger.SendMessage(data);
                 LogSentMessage(data);
             }
-            else if(comboMessageType.SelectedItem.ToString() == "Message 2")
+            else if (comboMessageType.SelectedItem.ToString() == "Message 2")
             {
                 // Validate Unit Reference Number
                 if (!int.TryParse(textBoxMsg2RefNo.Text, out int unitRef2) || unitRef2 < 1 || unitRef2 > 9999)

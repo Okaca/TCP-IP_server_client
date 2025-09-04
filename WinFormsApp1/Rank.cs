@@ -1,5 +1,8 @@
-﻿namespace WinFormsApp1
+﻿using System.Text.Json.Serialization;
+
+namespace WinFormsApp1
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]  // This makes JSON use strings instead of numbers
     public enum Rank : short
     {
         Ustegmen = 0,
