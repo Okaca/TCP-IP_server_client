@@ -1,7 +1,8 @@
-﻿namespace WinFormsApp1
+namespace WinFormsApp1
 {
     internal class Message2
     {
+        public int MessageId { get; } = 2; // Read-only with default value
         public int UnitRefNumber { get; set; }
         public byte LocationValidity { get; set; }
         public long Latitude { get; set; }
